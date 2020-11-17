@@ -13,8 +13,8 @@ object Ensemble{
 
     val ensemble = new ThompsonSamplingLocalWithContext[Int, Array[Double], Unit, String, BayesianSampleRegressionContext](
         models.zipWithIndex.map{case(k,v) => (v,k)}.toMap,
-        MutableMap(0 -> new BayesianSampleRegressionContext(2, 0.3, 1.0),
-                   1 -> new BayesianSampleRegressionContext(2, 0.3, 1.0)),
+        MutableMap(0 -> new BayesianSampleRegressionContext(5, 0.3, 1.0),
+                   1 -> new BayesianSampleRegressionContext(5, 0.3, 1.0)),
         (a1, a2) => if(a1 == a2) 1.0 else 0.0)
     
     case class Update(val modelId: Int, val context: Array[Double], val reward:Double)

@@ -40,8 +40,8 @@ object MeerkatRoutes {
           Ok(s"model ${update.modelId} updated with ${update.reward}!")
         }
 
-      case req @ GET -> Root / "status" => 
-        Ok(ensemble.report)
+      case req @ GET -> Root / "export" => 
+        Ok(ensemble.export)
     }
   
   }
