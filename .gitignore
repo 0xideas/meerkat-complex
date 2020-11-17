@@ -1,0 +1,12 @@
+*
+
+!*/
+
+!*.scala
+
+!build.sbt
+!.gitignore
+!project/build.properties
+!project/plugins.sbt
+!Procfile
+!requestCheck.sh
