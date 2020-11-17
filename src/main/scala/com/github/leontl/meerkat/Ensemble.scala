@@ -1,18 +1,25 @@
 package com.github.leontl.meerkat
 
-import epsilon.ensembles.EpsilonEnsembleThompsonSamplingLocal
-import epsilon.models.GenericDummyModel
+import ada.core.ensembles.ThompsonSamplingLocalWithContext
+import ada.core.models.GenericStaticModel
+import ada.core.components.distributions.BayesianSampleRegressionContext
+
+import io.circe.Json
+import scala.collection.mutable.{Map => MutableMap}
 
 object Ensemble{
-    val models = List( new GenericDummyModel[Unit, String]("a"),
-        new GenericDummyModel[Unit, String]("b"))
+    val models = List( new GenericStaticModel[Unit, String]("a")(s => Json.fromString(s)),
+        new GenericStaticModel[Unit, String]("b")(s => Json.fromString(s)))
 
-    val ensemble = EpsilonEnsembleThompsonSamplingLocal[Int, Unit, String](
+    val ensemble = new ThompsonSamplingLocalWithContext[Int, Array[Double], Unit, String, BayesianSampleRegressionContext](
         models.zipWithIndex.map{case(k,v) => (v,k)}.toMap,
-        (distr, reward) => {distr.update(reward); distr},
-        (a1, a2) => if(a1 == a2) 1.0 else 0.0,
-        1.0, 1.0)
+        MutableMap(0 -> new BayesianSampleRegressionContext(2, 0.3, 1.0),
+                   1 -> new BayesianSampleRegressionContext(2, 0.3, 1.0)),
+        (a1, a2) => if(a1 == a2) 1.0 else 0.0)
     
-    case class Update(val modelId:Int, val reward:Double)
+    case class Update(val modelId: Int, val context: Array[Double], val reward:Double)
+
+    case class Context(val context: Array[Double])
 
 }
+

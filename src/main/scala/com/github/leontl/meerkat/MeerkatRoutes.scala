@@ -21,16 +21,22 @@ object MeerkatRoutes {
     implicit val updateDecoder: EntityDecoder[F, Update] = jsonOf[F, Update]
     implicit val updateEncoder: EntityEncoder[F, Update] = jsonEncoderOf[F, Update]
 
-    HttpRoutes.of[F] {
-      case GET -> Root / "action" =>
-        for {
-          greeting <- H.hello(MeerkatAction.Name(ensemble.act(())))
-          resp <- Ok(greeting)
-        } yield resp
+    implicit val contextDecoder: EntityDecoder[F, Context] = jsonOf[F, Context]
+    implicit val contextEncoder: EntityEncoder[F, Context] = jsonEncoderOf[F, Context]
 
+    HttpRoutes.of[F] {
+      case req @ POST -> Root / "action" =>
+        req.decode[Context]{ context => {
+            for {
+              action <- H.act(MeerkatAction.Do(ensemble.act(context.context, ())))
+              resp <- Ok(action)
+            } yield resp
+          }
+        }
+  
       case req @ POST -> Root / "update" => 
         req.decode[Update]{ update =>
-          ensemble.update(update.modelId, update.reward)
+          ensemble.update(update.modelId, update.context, update.reward)
           Ok(s"model ${update.modelId} updated with ${update.reward}!")
         }
 
