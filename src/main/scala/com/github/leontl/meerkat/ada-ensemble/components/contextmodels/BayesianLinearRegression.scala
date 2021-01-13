@@ -24,8 +24,8 @@ abstract class BayesianLinearRegressionAbstract(nfeatures: Int, alpha: Double, p
         mean = cov * ((covInv * mean) + (xvec.map(_ * beta * y)))
         covInv = covInvT
 
-        //w_cov = cov
-        w_cov = inv(covInv)
+        w_cov = cov
+        //w_cov = inv(covInv)
     }
 
     def predictProb(x: Array[Double]): Gaussian = {
