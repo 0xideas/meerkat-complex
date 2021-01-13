@@ -36,7 +36,9 @@ lazy val root = (project in file("."))
       
       "org.bytedeco" % "javacpp"   % "1.5.4" classifier "linux-x86_64",
       "org.bytedeco" % "openblas"  % "0.3.10-1.5.4" classifier "linux-x86_64",
-      "org.bytedeco" % "arpack-ng" % "3.7.0-1.5.4" classifier "linux-x86_64"
+      "org.bytedeco" % "arpack-ng" % "3.7.0-1.5.4" classifier "linux-x86_64",
+
+      "com.microsoft.onnxruntime" % "onnxruntime" % "1.5.2"
     ),
     addCompilerPlugin("org.typelevel" %% "kind-projector"     % "0.10.3"),
     addCompilerPlugin("com.olegpy"    %% "better-monadic-for" % "0.3.0")

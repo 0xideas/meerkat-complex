@@ -1,15 +1,17 @@
 
 #host=http://localhost:8080
-host=https://salty-river-28824.herokuapp.com
+host=https://gentle-ravine-66957.herokuapp.com
 
 curl --header "Content-Type: application/json" --request POST --data '{"context":["1.0", "0.0", "0.0", "1.0", "1.0"]}'  "$host/action"
 
 for i in {0..50}
     do
-    	curl --header "Content-Type: application/json" --request POST --data '{"modelId":"0", "context":["1.0", "1.0", "1.0", "0.0", "0.0"], "reward":"1.0"}' "$host/update" &
-    	curl --header "Content-Type: application/json" --request POST --data '{"modelId":"0", "context":["0.0", "0.0", "0.0", "1.0", "1.0"], "reward":"0.0"}' "$host/update" &
-    	curl --header "Content-Type: application/json" --request POST --data '{"modelId":"1", "context":["1.0", "1.0", "1.0", "0.0", "0.0"], "reward":"0.0"}' "$host/update" &
-    	curl --header "Content-Type: application/json" --request POST --data '{"modelId":"1", "context":["0.0", "0.0", "0.0", "1.0", "1.0"], "reward":"1.0"}' "$host/update" &
+    	context1=$(printf '"1.0", "1.0", "1.0", "0.0", "0.0"%.0s' {1..10})
+    	context2=$(printf '"0.0", "0.0", "0.0", "1.0", "1.0"%.0s' {1..10})
+    	curl --header "Content-Type: application/json" --request POST --data '{"modelId":"0", "context":[$context1], "reward":"1.0"}' "$host/update" &
+    	curl --header "Content-Type: application/json" --request POST --data '{"modelId":"0", "context":[$context2], "reward":"0.0"}' "$host/update" &
+    	curl --header "Content-Type: application/json" --request POST --data '{"modelId":"1", "context":[$context1], "reward":"0.0"}' "$host/update" &
+    	curl --header "Content-Type: application/json" --request POST --data '{"modelId":"1", "context":[$context2], "reward":"1.0"}' "$host/update" &
     done
 wait
 
