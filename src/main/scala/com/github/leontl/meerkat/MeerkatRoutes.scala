@@ -24,6 +24,9 @@ object MeerkatRoutes {
     implicit val contextDecoder: EntityDecoder[F, Context] = jsonOf[F, Context]
     implicit val contextEncoder: EntityEncoder[F, Context] = jsonEncoderOf[F, Context]
 
+    implicit val changeBetaDecoder: EntityDecoder[F, ChangeBeta] = jsonOf[F, ChangeBeta]
+    implicit val changeBetaEncoder: EntityEncoder[F, ChangeBeta] = jsonEncoderOf[F, ChangeBeta]
+
     HttpRoutes.of[F] {
       case req @ POST -> Root / "action" =>
         req.decode[Context]{ context => {
@@ -38,6 +41,12 @@ object MeerkatRoutes {
         req.decode[Update]{ update =>
           ensemble.update(update.modelId, update.context, update.reward)
           Ok(s"model ${update.modelId} updated with ${update.reward}!")
+        }
+
+      case req @ POST -> Root / "changeBeta" => 
+        req.decode[ChangeBeta]{ betaParameters =>
+          ensemble.modelRewards()(betaParameters.modelId).changeBeta(betaParameters.increment, betaParameters.factor, betaParameters.max)
+          Ok(s"model ${betaParameters.modelId} beta changed to ${ensemble.modelRewards()(betaParameters.modelId).beta}!")
         }
 
       case req @ GET -> Root / "export" => 

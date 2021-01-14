@@ -20,5 +20,7 @@ object Ensemble{
 
     case class Context(val context: Array[Double])
 
+    case class ChangeBeta(val modelId: Int, val increment: Double, val factor: Double, val max: Double)
+
 }
 
