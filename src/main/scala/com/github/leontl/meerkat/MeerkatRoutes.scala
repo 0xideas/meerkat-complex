@@ -47,6 +47,7 @@ object MeerkatRoutes {
         req.decode[ChangeBeta]{ betaParameters =>
           ensemble.modelRewards(betaParameters.modelId).changeBeta(betaParameters.increment, betaParameters.factor, betaParameters.max)
           Ok(s"model ${betaParameters.modelId} beta changed to ${ensemble.modelRewards(betaParameters.modelId).beta}!")
+          //Ok(betaParameters)
         }
 
       case req @ GET -> Root / "export" => 

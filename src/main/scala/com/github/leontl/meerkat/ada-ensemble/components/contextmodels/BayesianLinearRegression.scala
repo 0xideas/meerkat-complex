@@ -7,7 +7,7 @@ import smile.regression.{OnlineRegression, LinearModel}
 import io.circe.Json
 import scala.language.implicitConversions
 
-abstract class BayesianLinearRegressionAbstract(val nfeatures: Int, val alpha: Double, private var beta: Double)
+abstract class BayesianLinearRegressionAbstract(nfeatures: Int, alpha: Double, private var _beta: Double)
     extends OnlineRegression[Array[Double]]{
     private var mean = DenseVector.zeros[Double](nfeatures)
     private var covInv = DenseMatrix.eye[Double](nfeatures).map(_/alpha)
@@ -15,6 +15,8 @@ abstract class BayesianLinearRegressionAbstract(val nfeatures: Int, val alpha: D
     private var w_cov = DenseMatrix.zeros[Double](nfeatures, nfeatures)
 
     implicit def toVector(array: Array[Double]): DenseVector[Double] = DenseVector(array:_*)
+
+    def beta: Double = _beta
 
     def update(x: Array[Double], y: Double): Unit = {
         val xvec = toVector(x)
@@ -65,7 +67,9 @@ abstract class BayesianLinearRegressionAbstract(val nfeatures: Int, val alpha: D
     ))
 
     def changeBeta(increment: Double = 0.0, factor: Double = 1.0, max: Double = 5000.0): Unit = {
-        beta = math.min((beta+increment)*factor, max)
+        val newBeta = math.min((beta+increment)*factor, max)
+        println(newBeta)
+        this._beta = newBeta
     }
 }
 

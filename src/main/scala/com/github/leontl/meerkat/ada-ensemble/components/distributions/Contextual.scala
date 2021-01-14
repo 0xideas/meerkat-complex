@@ -29,12 +29,13 @@ class PointRegressionContext(
 class BayesianSampleRegressionContext(
     val nfeatures: Int,
     val alpha: Double = 0.3,
-    val beta: Double = 1.0)
+    val _beta: Double = 1.0)
     extends SmileModelContextDistribution[Array[Double], BayesianSampleLinearRegression](
-        new BayesianSampleLinearRegression(nfeatures, alpha, beta)
+        new BayesianSampleLinearRegression(nfeatures, alpha, _beta)
     ){
         override def export: Json = model.export
         def changeBeta(increment: Double = 0.0, factor: Double = 1.0, max: Double = 5000.0): Unit = {
             model.changeBeta(increment, factor, max)
         }
+        def beta(): Double = model.beta
     }
