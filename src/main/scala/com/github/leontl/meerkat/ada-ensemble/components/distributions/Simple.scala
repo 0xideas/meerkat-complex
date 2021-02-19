@@ -1,4 +1,4 @@
-package ada.core.components.distributions
+package ada.components.distributions
 
 import breeze.stats.distributions.{Beta, Bernoulli}
 import io.circe.Json
@@ -6,7 +6,7 @@ import io.circe.Json
 import ada._
 
 
-class BetaDistribution (private var alpha: Double, private var beta: Double)
+class BetaDistribution (private var alpha: Double, private var beta: Double, learningRate: Double = 1.0)
     extends SimpleDistribution{
     private var betaDistribution = Beta(alpha, beta)
     override def toString: String = {
@@ -15,21 +15,19 @@ class BetaDistribution (private var alpha: Double, private var beta: Double)
 
     def draw = betaDistribution.draw()
 
-    def updateBounded(reward: Reward):Unit = {
-        val rewardNormed = math.max(math.min(reward, 1), 0)
+    def updateBounded(reward: Reward): Unit = {
+        val rewardNormed = math.max(math.min(reward.value, 1), 0)
         alpha = alpha + rewardNormed
         beta = beta + (1.0-rewardNormed)
         betaDistribution = Beta(alpha, beta)
     }
-    def update(reward: Reward):Unit = {
-        alpha = alpha  + math.max(0, reward)
-        beta = beta + math.max(0, 1 -reward)
-        betaDistribution = Beta(alpha, beta)
-    }
-    def updateRecency(reward: Reward, recencyBias: Double):Unit = {
-        alpha = (alpha + math.max(0, reward)) * (1-recencyBias) + 1.0 * recencyBias
-        beta = (beta - math.min(0, reward)) * (1-recencyBias)  + 1.0 * recencyBias
-        betaDistribution = Beta(alpha, beta)
+
+    def update(reward: Reward): Unit = {
+        if(!(reward.value.isInfinite || reward.value.isNaN() )){
+            alpha = alpha  + math.max(0, reward.value)*learningRate
+            beta = beta + math.max(0, 1 - reward.value)*learningRate
+            betaDistribution = Beta(alpha, beta)
+        }
     }
 
     def export: Json = Json.fromFields(Map(
@@ -39,27 +37,28 @@ class BetaDistribution (private var alpha: Double, private var beta: Double)
 }
 
 
-class ExpDouble(private var value: Double) extends SimpleDistribution {
-    def export: Json = Json.fromDouble(value).get
-    def draw: Double = value
-    def update(reward: Reward): Unit = {value = reward; ()}
-}
-object ExpDouble{
-    implicit def expDouble: Double => ExpDouble = (d:Double) => new ExpDouble(d) 
-}
 
-class MeanDouble(private var value: Double) extends SimpleDistribution {
-    private var i = 1
+class MeanDouble extends SimpleDistribution {
+    private var i = 1.0
+    private var value = 0.0
     def export: Json = Json.fromDouble(value).get
     def draw: Double = value
-    def update(reward: Reward): Unit = {value = value*(1.0-1.0/i) + reward * (1.0/i); ()}
+    def update(reward: Reward): Unit = {
+        val oldValue = value
+        if(!(reward.value.isInfinite || reward.value.isNaN() )){
+            value = value*(1.0-1.0/i) + reward.value * (1.0/i)
+            i+=1.0
+        }
+    }
 }
 
 class Exp3Reward(private var value: Double, gamma: Double, k: Int) extends SimpleDistribution{
     def draw: Double = value
 
     def update(reward: Reward): Unit = {
-        value = value * math.exp(gamma* reward/(k))
+        if(!(reward.value.isInfinite || reward.value.isNaN() )){
+            value = value * math.exp(gamma* reward.value/(k))
+        }
     }
 
     def export: Json = Json.fromFields(Map(
@@ -67,4 +66,18 @@ class Exp3Reward(private var value: Double, gamma: Double, k: Int) extends Simpl
         "gamma" -> Json.fromDouble(gamma).get,
         "k" -> Json.fromInt(k)
     ))
+}
+
+
+
+//TEST
+
+class ExpDouble(private var value: Double) extends SimpleDistribution {
+    def export: Json = Json.fromDouble(value).get
+    def draw: Double = value
+    def update(reward: Reward): Unit = {if(!(reward.value.isInfinite || reward.value.isNaN() )){value = reward.value}; ()}
+}
+
+object ExpDouble{
+    implicit def expDouble: Double => ExpDouble = (d:Double) => new ExpDouble( d)
 }

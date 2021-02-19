@@ -10,13 +10,16 @@ import io.circe.generic.semiauto._
 import org.http4s._
 import org.http4s.circe._
 import io.circe.generic.auto._
-
+import ada.`package`.Reward
 
 object MeerkatRoutes {
   def routes[F[_]: Sync](H: MeerkatAction[F]): HttpRoutes[F] = {
     val dsl = new Http4sDsl[F]{}
     import dsl._
     import Ensemble._
+
+    implicit val rewardDeconder: EntityDecoder[F, Reward] = jsonOf[F, Reward]
+    implicit val rewardEnconder: EntityEncoder[F, Reward] = jsonEncoderOf[F, Reward]
 
     implicit val updateDecoder: EntityDecoder[F, Update] = jsonOf[F, Update]
     implicit val updateEncoder: EntityEncoder[F, Update] = jsonEncoderOf[F, Update]
@@ -34,21 +37,23 @@ object MeerkatRoutes {
       case req @ POST -> Root / "action" =>
         req.decode[Context]{ context => {
             for {
-              action <- H.act(MeerkatAction.Do(ensemble.act(context.context, ())))
+              action <- H.act(MeerkatAction.Do(ensemble.act(List(), context.context, ())))
               resp <- Ok(action)
             } yield resp
           }
         }
-  
+
+
       case req @ POST -> Root / "update" => 
         req.decode[Update]{ update =>
-          ensemble.update(update.modelId, update.context, update.reward)
+          ensemble.update(List(update.modelId), update.context, (), update.reward)
+
           Ok(s"model ${update.modelId} updated with ${update.reward}!")
         }
 
-      case req @ POST -> Root / "change-beta" => 
+      case req @ POST -> Root / "set-beta" => 
         req.decode[ChangeBeta]{ betaParameters =>
-          ensemble.modelRewards(betaParameters.modelId).changeBeta(betaParameters.increment, betaParameters.factor, betaParameters.max)
+          ensemble.modelRewards(betaParameters.modelId).setBeta(betaParameters.increment, betaParameters.factor, betaParameters.max)
           Ok(s"model ${betaParameters.modelId} beta changed to ${ensemble.modelRewards(betaParameters.modelId).beta}!")
         }
 

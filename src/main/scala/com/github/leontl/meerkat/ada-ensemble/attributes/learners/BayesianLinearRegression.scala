@@ -1,4 +1,4 @@
-package ada.core.components.contextmodels
+package ada.components.learners
 
 import breeze.linalg._
 import breeze.numerics._
@@ -6,6 +6,7 @@ import breeze.stats.distributions.{Gaussian, MultivariateGaussian}
 import smile.regression.{OnlineRegression, LinearModel}
 import io.circe.Json
 import scala.language.implicitConversions
+
 
 abstract class BayesianLinearRegressionAbstract(nfeatures: Int, alpha: Double, beta: Double)
     extends OnlineRegression[Array[Double]]{
@@ -20,14 +21,16 @@ abstract class BayesianLinearRegressionAbstract(nfeatures: Int, alpha: Double, b
     def beta(): Double = _beta
 
     def update(x: Array[Double], y: Double): Unit = {
-        val xvec = toVector(x)
-        val outer = (xvec * xvec.t)
-        val covInvT = covInv + outer.map(_ * beta)
-        cov = inv(covInvT)
-        mean = cov * ((covInv * mean) + (xvec.map(_ * beta * y)))
-        covInv = covInvT
+        if(!(y.isInfinite || y.isNaN() )){
+            val xvec = toVector(x)
+            val outer = (xvec * xvec.t)
+            val covInvT = covInv + outer.map(_ * beta)
+            cov = inv(covInvT)
+            mean = cov * ((covInv * mean) + (xvec.map(_ * beta * y)))
+            covInv = covInvT
 
-        w_cov = cov
+            w_cov = cov
+        }
         //w_cov = inv(covInv)
     }
 

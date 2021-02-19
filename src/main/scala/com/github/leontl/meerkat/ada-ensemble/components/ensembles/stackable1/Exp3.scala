@@ -1,12 +1,12 @@
-package ada.core.ensembles
+package ada.ensembles
 
 import breeze.stats.mode
 import io.circe.Json
 
 import ada._
-import ada.core.interface._
-import ada.core.components.selectors._
-import ada.core.components.distributions._
+import ada.interface._
+import ada.components.selectors._
+import ada.components.distributions._
 
 
 class Exp3Ensemble[ModelID, ModelData, ModelAction, AggregateReward <: Exp3Reward]
@@ -14,7 +14,7 @@ class Exp3Ensemble[ModelID, ModelData, ModelAction, AggregateReward <: Exp3Rewar
      modelKeys: () => List[ModelID],
     modelRewards: Map[ModelID, AggregateReward],
     gamma: Double)
-    extends StackableEnsemble[ModelID, ModelData, ModelAction, AggregateReward](models, modelKeys, modelRewards)
+    extends StackableEnsemble1[ModelID, ModelData, ModelAction, AggregateReward](models, modelKeys, modelRewards)
     with Exp3[ModelID, ModelData, ModelAction]{
 
     private var k: Int = modelKeys().length
@@ -23,13 +23,14 @@ class Exp3Ensemble[ModelID, ModelData, ModelAction, AggregateReward <: Exp3Rewar
         _actImpl[AggregateReward](models, modelKeys, modelRewards , 1.0, data, selectedIds, gamma, k)
     }
 
-    def update(modelIds: List[ModelID], reward: Reward): Unit = {
+    override def update(modelIds: List[ModelID], data: ModelData, reward: Reward): Unit = {
                                             //this variable comes from the Exp3 Actor Trait
-        val probability = (1.0-gamma)*reward/totalReward + gamma/k
-        modelRewards(modelIds(0)).update(reward/probability)
-        models(modelIds.head).update(modelIds.tail, reward)
+        val probability = (1.0-gamma)*reward.value/totalReward.value + gamma/k
+        modelRewards(modelIds(0)).update(new Reward(reward.value/probability))
+        models(modelIds.head).update(modelIds.tail, data, reward)
     }
 }
+
 
 
 

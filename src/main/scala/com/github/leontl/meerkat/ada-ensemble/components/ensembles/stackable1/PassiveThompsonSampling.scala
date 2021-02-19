@@ -1,16 +1,16 @@
-package ada.core.ensembles
+package ada.ensembles
 
 import ada._
-import ada.core.interface._
-import ada.core.components.selectors._
-import ada.core.components.distributions._
+import ada.interface._
+import ada.components.selectors._
+import ada.components.distributions._
 import breeze.stats.distributions.Beta
-import ada.core.interface.PassiveEnsemble
+
 
 
 class PassiveThompsonSamplingEnsemble
     [ModelID, ModelData, ModelAction, Distr <: SimpleDistribution]
-    (models: ModelID  => StackableModel[ModelID, ModelData, ModelAction],
+    (models: ModelID  => StackableModelPassive[ModelID, ModelData, ModelAction, Distr],
      modelKeys: () => List[ModelID],
      modelRewards: Map[ModelID, Distr],
     evaluateFn: (ModelAction, ModelAction) => Reward)
@@ -19,6 +19,9 @@ class PassiveThompsonSamplingEnsemble
         modelKeys,
         modelRewards,
         0.0
-    ) with PassiveEnsemble[ModelID, ModelData, ModelAction, Distr]{
+    ) with PassiveStackableEnsemble1[ModelID, ModelData, ModelAction, Distr]{
         def evaluate(action: ModelAction, optimalAction: ModelAction): Reward = evaluateFn(action, optimalAction)
+        def updateAll(modelIds: List[ModelID], data: ModelData, optimalAction: ModelAction): Unit = {
+            _updateAllImplStackable1(data, optimalAction, modelIds, models, modelKeys, modelRewards)
+        }
 }
