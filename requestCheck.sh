@@ -31,7 +31,7 @@ for j in {0..600}
 
     start=$SECONDS
 
-    for i in {0..100}
+    for i in {0..10}
         do
             curl --header "Content-Type: application/json" --request POST --data "{\"context\":[${context0::-2}]}" "$host/action" &
         done
@@ -46,5 +46,5 @@ for j in {0..600}
     printf "   "
     dt=$(date '+%d/%m/%Y %H:%M:%S');
     echo "$dt"
-    sleep 30
+    sleep 120
     done
