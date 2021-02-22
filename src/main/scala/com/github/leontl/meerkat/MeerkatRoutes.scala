@@ -18,8 +18,8 @@ object MeerkatRoutes {
     import dsl._
     import Ensemble._
 
-    implicit val rewardDeconder: EntityDecoder[F, Reward] = jsonOf[F, Reward]
-    implicit val rewardEnconder: EntityEncoder[F, Reward] = jsonEncoderOf[F, Reward]
+    //implicit val rewardDeconder: EntityDecoder[F, Reward] = jsonOf[F, Reward2]
+    //implicit val rewardEnconder: EntityEncoder[F, Reward] = jsonEncoderOf[F, Reward2]
 
     implicit val updateDecoder: EntityDecoder[F, Update] = jsonOf[F, Update]
     implicit val updateEncoder: EntityEncoder[F, Update] = jsonEncoderOf[F, Update]
@@ -43,12 +43,11 @@ object MeerkatRoutes {
           }
         }
 
-
       case req @ POST -> Root / "update" => 
         req.decode[Update]{ update =>
-          ensemble.update(List(update.modelId), update.context, (), update.reward)
+          ensemble.update(List(update.modelId), update.context, (), new Reward(update.reward))
 
-          Ok(s"model ${update.modelId} updated with ${update.reward}!")
+          Ok(s"contextual model ${update.modelId} updated with ${update.reward}!")
         }
 
       case req @ POST -> Root / "set-beta" => 

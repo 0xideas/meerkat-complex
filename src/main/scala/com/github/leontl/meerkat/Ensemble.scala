@@ -3,7 +3,7 @@ package com.github.leontl.meerkat
 import ada.ensembles.ContextualThompsonSampling
 import ada.models.GenericStaticModelContext
 import ada.components.distributions.BayesianSampleRegressionDistribution
-import ada.`package`.Reward
+//import ada.`package`.Reward
 
 import io.circe.Json
 import scala.collection.mutable.{Map => MutableMap}
@@ -20,7 +20,7 @@ object Ensemble{
         Map(0 -> new BayesianSampleRegressionDistribution(2, 0.3, 1.0),
             1 -> new BayesianSampleRegressionDistribution(2, 0.3, 1.0)))
     
-    case class Update(val modelId: Int, val context: Array[Double], val reward:Reward)
+    case class Update(val modelId: Int, val context: Array[Double], val reward: Double)
 
     case class Context(val context: Array[Double])
 

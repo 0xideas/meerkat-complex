@@ -1,9 +1,9 @@
-val Http4sVersion = "0.20.23"
-val CirceVersion = "0.11.2"
-val Specs2Version = "4.1.0"
+val Http4sVersion = "0.21.19"
+val CirceVersion = "0.12.3"
+val Specs2Version = "4.10.0"
 val LogbackVersion = "1.2.3"
 val BreezeVersion = "1.1"
-val Log4jversion = "2.13.3"
+val Log4jversion = "2.14.0"
 
 lazy val root = (project in file("."))
   .settings(
@@ -44,6 +44,9 @@ lazy val root = (project in file("."))
     addCompilerPlugin("com.olegpy"    %% "better-monadic-for" % "0.3.0")
   )
 
+
+enablePlugins(JavaAppPackaging)
+
 scalacOptions ++= Seq(
   "-deprecation",
   "-encoding", "UTF-8",
@@ -55,4 +58,3 @@ scalacOptions ++= Seq(
 )
 
 
-enablePlugins(JavaAppPackaging)
