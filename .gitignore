@@ -10,3 +10,4 @@
 !project/plugins.sbt
 !Procfile
 !requestCheck.sh
+!*.xml
