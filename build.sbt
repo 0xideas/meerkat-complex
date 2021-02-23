@@ -27,7 +27,7 @@ lazy val root = (project in file("."))
 
       "org.scalacheck" %% "scalacheck" % "1.14.1",
       "com.github.haifengl" %% "smile-scala" % "2.5.3",
-      "org.clapper" %% "grizzled-slf4j" % "1.3.4",
+      //"org.clapper" %% "grizzled-slf4j" % "1.3.4",
       //"com.stripe" %% "rainier-core" % "0.3.3",
 
       "org.scalanlp" %% "breeze" % BreezeVersion,
@@ -43,6 +43,8 @@ lazy val root = (project in file("."))
     addCompilerPlugin("org.typelevel" %% "kind-projector"     % "0.10.3"),
     addCompilerPlugin("com.olegpy"    %% "better-monadic-for" % "0.3.0")
   )
+
+logLevel := Level.Error
 
 
 enablePlugins(JavaAppPackaging)

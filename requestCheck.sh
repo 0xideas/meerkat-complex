@@ -1,7 +1,7 @@
 #!/bin/bash
 
-#host=https://localhost:8080
-host=https://shrouded-crag-78457.herokuapp.com/
+host=https://localhost:5000
+host=https://safe-escarpment-30287.herokuapp.com
 
 context0=$(printf '"1.0", "0.0", "0.0", "1.0", "1.0", %.0s' {1..100})
 context0='"1.0", "0.0"  '
